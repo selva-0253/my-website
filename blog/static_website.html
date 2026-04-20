@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Deploy Static Website on AWS</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- Mermaid -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+</head>
+
+<body>
+
+  <header class="nav">
+    <div class="logo">TechResearch</div>
+    <nav>
+      <a href="../index.html">Home</a>
+    </nav>
+  </header>
+
+  <article class="container">
+
+    <h1>Deploy Static Website on AWS</h1>
+    <p><small>Published: 2026</small></p>
+
+    <p>
+      This project demonstrates the deployment of a fully static website using AWS cloud services.
+      The architecture leverages <strong>S3</strong> for storage, <strong>CloudFront</strong> for global content delivery,
+      <strong>Route 53</strong> for DNS management, and <strong>ACM</strong> for SSL/TLS encryption.
+    </p>
+
+    <p>
+      The goal of this setup was to achieve a secure, scalable, and highly available static website with low latency
+      access from anywhere in the world.
+    </p>
+
+    <h2>Architecture Diagram</h2>
+
+    <div class="mermaid">
+            graph TD
+            
+            User[User Browser]
+            
+            subgraph Edge_Layer
+                DNS[Route 53 DNS]
+                CF[CloudFront CDN]
+            end
+            
+            subgraph Security_Layer
+                ACM[SSL Certificate ACM]
+            end
+            
+            subgraph Storage_Layer
+                S3[S3 Static Website Bucket]
+                Files[HTML / CSS / JS Files]
+            end
+            
+            User --> DNS
+            DNS --> CF
+            CF --> ACM
+            CF --> S3
+            S3 --> Files
+     </div>
+
+    <h2>Implementation Details</h2>
+
+    <p>
+      The website files (HTML, CSS, JS) were hosted in an S3 bucket configured for static website hosting.
+      CloudFront was used as a CDN to cache content at edge locations for faster delivery.
+    </p>
+
+    <p>
+      Route 53 was configured to map a custom domain to the CloudFront distribution.
+      AWS Certificate Manager (ACM) was used to enable HTTPS for secure communication.
+    </p>
+
+    <h2>Key Benefits</h2>
+
+    <ul>
+      <li>Low latency global content delivery via CloudFront</li>
+      <li>Highly scalable and serverless architecture</li>
+      <li>Secure HTTPS access using ACM</li>
+      <li>Cost-effective static hosting using S3</li>
+    </ul>
+
+  </article>
+
+  <footer>
+    <p>© 2026 Tech Research Blog</p>
+  </footer>
+
+</body>
+</html>

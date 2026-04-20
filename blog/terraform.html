@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Automate Infrastructure with Terraform</title>
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- Mermaid for architecture -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+</head>
+
+<body>
+
+  <header class="nav">
+    <div class="logo">TechResearch</div>
+    <nav>
+      <a href="../index.html">Home</a>
+    </nav>
+  </header>
+
+  <article class="container">
+
+    <h1>Automate Infrastructure with Terraform</h1>
+    <p><small>Published: April 2026</small></p>
+
+    <p>
+      This project focuses on automating AWS infrastructure provisioning using Terraform.
+      The goal was to implement Infrastructure-as-Code (IaC) to ensure consistent,
+      repeatable, and version-controlled cloud deployments.
+    </p>
+
+    <p>
+      Instead of manually creating resources in AWS, Terraform is used to define infrastructure
+      declaratively, allowing environments to be created, modified, and destroyed reliably.
+    </p>
+
+    <h2>Architecture Diagram</h2>
+
+    <div class="mermaid">
+        flowchart TD
+
+        Dev[Developer Machine]
+
+        Git[GitHub Repository]
+
+        TF[Terraform CLI]
+
+        State[Terraform State Backend]
+
+        AWS[AWS Cloud]
+
+        VPC[VPC Setup]
+
+        IAM[IAM Roles]
+
+        EC2[Compute Instances]
+
+        Dev --> Git
+        Git --> TF
+        TF --> State
+        TF --> AWS
+
+        AWS --> VPC
+        AWS --> IAM
+        AWS --> EC2
+    </div>
+
+    <h2>Implementation Details</h2>
+
+    <p>
+      The infrastructure was defined using Terraform configuration files, including VPC,
+      subnets, IAM roles, and compute resources.
+    </p>
+
+    <p>
+      Terraform state was managed remotely to ensure collaboration and consistency across environments.
+    </p>
+
+    <p>
+      CI/CD integration with GitHub allows infrastructure changes to be version-controlled
+      and automatically applied.
+    </p>
+
+    <h2>Key Benefits</h2>
+
+    <ul>
+      <li>Infrastructure-as-Code (IaC) for consistency</li>
+      <li>Automated provisioning of AWS resources</li>
+      <li>Version-controlled infrastructure changes via GitHub</li>
+      <li>Reduced manual errors and faster deployments</li>
+    </ul>
+
+  </article>
+
+  <footer>
+    <p>© 2026 Tech Research Blog</p>
+  </footer>
+
+</body>
+</html>
