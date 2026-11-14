@@ -1,9 +1,22 @@
-name: Deploy to S3
+name: Deploy site
+
+# Environment variables on `production` are written by my-website-infra/bootstrap:
+#   AWS_ROLE_ARN, AWS_REGION, SITE_PARAMETER_PREFIX
+# Bucket and CloudFront ID are read from SSM Parameter Store under that prefix.
 
 on:
   push:
     branches:
-      - main   # or master
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # OIDC
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -12,18 +25,32 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Read deployment targets
+        id: target
+        run: |
+          get() { aws ssm get-parameter --name "${{ vars.SITE_PARAMETER_PREFIX }}/$1" --query Parameter.Value --output text; }
+          echo "bucket=$(get site_bucket)" >> "$GITHUB_OUTPUT"
+          echo "distribution=$(get cloudfront_distribution_id)" >> "$GITHUB_OUTPUT"
 
       - name: Sync files to S3
         run: |
-          aws s3 sync . s3://${{ secrets.S3_BUCKET_WEBSITE }} --delete \
+          aws s3 sync . "s3://${{ steps.target.outputs.bucket }}" --delete \
                 --exclude ".git/*" \
                 --exclude ".github/*" \
-                --exclude ".gitignore"
+                --exclude ".gitignore" \
+                --exclude ".claude/*" \
+                --exclude "*.md"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+                --distribution-id "${{ steps.target.outputs.distribution }}" \
+                --paths "/*"
