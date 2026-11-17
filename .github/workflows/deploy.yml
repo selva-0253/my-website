@@ -40,6 +40,22 @@ jobs:
           echo "bucket=$(get site_bucket)" >> "$GITHUB_OUTPUT"
           echo "distribution=$(get cloudfront_distribution_id)" >> "$GITHUB_OUTPUT"
 
+      # Public values written by my-website-infra (engagement-api module):
+      # API address, Turnstile site key, Web Analytics token. Any that are
+      # missing (e.g. before the infra is applied) are left empty and the
+      # site simply hides likes/comments or analytics.
+      - name: Write site config
+        run: |
+          opt() { aws ssm get-parameter --name "${{ vars.SITE_PARAMETER_PREFIX }}/site_config/$1" --query Parameter.Value --output text 2>/dev/null || true; }
+          mkdir -p assets
+          config=$(jq -cn \
+            --arg api "$(opt api_base_url)" \
+            --arg ts  "$(opt turnstile_site_key)" \
+            --arg wa  "$(opt web_analytics_token)" \
+            '{apiBaseUrl: $api, turnstileSiteKey: $ts, webAnalyticsToken: $wa}')
+          echo "window.SITE_CONFIG = ${config};" > assets/site-config.js
+          cat assets/site-config.js
+
       - name: Sync files to S3
         run: |
           aws s3 sync . "s3://${{ steps.target.outputs.bucket }}" --delete \
