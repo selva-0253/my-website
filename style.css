@@ -210,6 +210,41 @@
     background-color: #550a8a;
     transform: translateX(5px);
   }
+
+  /* Contact: works even when no email app handles mailto: links */
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .button-outline {
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: #6a0dad;
+    border: 2px solid #6a0dad;
+    padding: 10px 26px;
+  }
+
+  .button-outline:hover {
+    background: #f4ecfb;
+    color: #550a8a;
+  }
+
+  .contact-email {
+    margin: 14px 0 0;
+    font-weight: 600;
+    user-select: all;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-status {
+    min-height: 1.6em;
+    margin: 4px 0 0;
+    color: #555;
+  }
   
   footer {
     text-align: center;
