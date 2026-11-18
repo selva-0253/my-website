@@ -53,6 +53,16 @@
     opacity: 0.8;
     text-decoration: underline;
   }
+
+  /* Logo links home but keeps its logo look */
+  .nav a.logo {
+    margin-left: 0;
+    font-weight: 800;
+  }
+
+  .nav a.logo:hover {
+    text-decoration: none;
+  }
   
   /* =========================================
      3. Hero & About Hero
