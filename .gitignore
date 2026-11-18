@@ -1,0 +1,2 @@
+# Generated at deploy time from SSM (see .github/workflows/deploy.yml)
+assets/site-config.js
