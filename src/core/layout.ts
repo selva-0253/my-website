@@ -24,7 +24,7 @@ function setTheme(theme: Theme): void {
 function logo(): HTMLAnchorElement {
   return h(
     "a",
-    { class: "logo", href: "/index.html", "aria-label": `${site.name} home` },
+    { class: "logo", href: "/", "aria-label": `${site.name} home` },
     h("span", {
       class: "logo-mark",
       html: '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="url(#lg)"/><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#5b21b6"/></linearGradient></defs><path d="M9 11h14M16 11v12" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="23" cy="22" r="2.6" fill="#f97316"/></svg>',
