@@ -61,7 +61,7 @@ export const certifications: Certification[] = (Array.isArray(raw.certifications
 export const cloudPlatforms =["AWS", "Microsoft Azure", "Google Cloud", "Oracle Cloud (OCI)"];
 
 export const nav = [
-  { label: "Home", href: "/index.html", page: "home" },
+  { label: "Home", href: "/", page: "home" },
   { label: "Articles", href: "/posts.html", page: "posts" },
   { label: "About", href: "/about.html", page: "about" },
 ] as const;

@@ -14,7 +14,7 @@ mount(
     h(
       "div",
       { class: "hero-actions center" },
-      h("a", { class: "btn btn-primary", href: "/index.html", html: `${icon("arrowLeft", 18)}<span>Back home</span>` }),
+      h("a", { class: "btn btn-primary", href: "/", html: `${icon("arrowLeft", 18)}<span>Back home</span>` }),
       h("a", { class: "btn btn-ghost", href: "/posts.html" }, "Browse articles"),
     ),
   ),
