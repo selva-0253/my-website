@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page not found — TechResearch</title>
+  <meta name="description" content="The page you were looking for could not be found.">
+  <meta property="og:title" content="Page not found — TechResearch">
+  <meta property="og:description" content="The page you were looking for could not be found.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#4c1d95">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script>
+    // Apply the saved/system theme before first paint (no flash).
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <script src="/site-config.js"></script>
+  <script type="module" src="/src/pages/notfound.ts"></script>
+</head>
+<body data-page="notfound">
+  <div id="app"></div>
+  <noscript><p style="padding:2rem;font-family:sans-serif">This site needs JavaScript enabled.</p></noscript>
+</body>
+</html>
