@@ -3,156 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deploy Static Website on AWS | TechResearch</title>
-  <link rel="stylesheet" href="../style.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <title>Deploy Static Website on AWS — TechResearch</title>
+  <meta name="description" content="Deploying a static website on AWS using S3, CloudFront, Route 53 and ACM.">
+  <meta property="og:title" content="Deploy Static Website on AWS — TechResearch">
+  <meta property="og:description" content="Deploying a static website on AWS using S3, CloudFront, Route 53 and ACM.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#4c1d95">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <script>
-    mermaid.initialize({ startOnLoad: true });
+    // Apply the saved/system theme before first paint (no flash).
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
   </script>
-  
-  <style>
-    /* Technical guide styling */
-    .tech-step-list { list-style: none; padding: 0; }
-    .tech-step-list li { margin-bottom: 30px; padding-left: 20px; border-left: 4px solid #232f3e; }
-    .tech-step-list h3 { margin: 0 0 10px 0; font-size: 1.25rem; color: #1a73e8; }
-    
-    /* Interactive Code Snippets */
-    .code-window { background: #1e1e1e; color: #d4d4d4; border-radius: 6px; margin: 15px 0; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
-    .code-header { background: #333; padding: 8px 15px; font-size: 0.8rem; color: #aaa; display: flex; justify-content: space-between; }
-    .code-content { padding: 15px; font-size: 0.9rem; line-height: 1.4; overflow-x: auto; }
-    .hl-attr { color: #9cdcfe; } .hl-val { color: #ce9178; } .hl-key { color: #569cd6; }
-
-    /* Challenges */
-    .challenges-section { background: #fff5f5; border: 1px solid #feb2b2; padding: 25px; border-radius: 8px; margin: 40px 0; }
-  </style>
-  <link rel="stylesheet" href="../assets/engagement.css">
-  <script src="../assets/site-config.js"></script>
-  <script src="../assets/site.js" defer></script>
-  <script src="../assets/engagement.js" defer></script>
+  <script src="/site-config.js"></script>
+  <script type="module" src="/src/pages/post.ts"></script>
 </head>
-
-<body>
-
-  <header class="nav">
-    <a class="logo" href="../index.html" aria-label="TechResearch home">TechResearch</a>
-    <nav><a href="../index.html">Home</a></nav>
-  </header>
-
-  <article class="container">
-
-    <h1>Deploy Static Website on AWS</h1>
-    <p><small>Published: 2026</small></p>
-
-    <p>
-      This project demonstrates the deployment of a fully static website using AWS cloud services.
-      The architecture leverages <strong>S3</strong>, <strong>CloudFront</strong>, 
-      <strong>Route 53</strong>, and <strong>ACM</strong>.
-    </p>
-
-    <p>
-      The goal of this setup was to achieve a secure, scalable, and highly available static website with low latency
-      access from anywhere in the world.
-    </p>
-
-    <h2>Architecture Diagram</h2>
-    <div class="mermaid">
-            graph TD
-            User[User Browser]
-            subgraph Edge_Layer
-                DNS[Route 53 DNS]
-                CF[CloudFront CDN]
-            end
-            subgraph Security_Layer
-                ACM[SSL Certificate ACM]
-            end
-            subgraph Storage_Layer
-                S3[S3 Static Website Bucket]
-                Files[HTML / CSS / JS Files]
-            end
-            User --> DNS
-            DNS --> CF
-            CF --> ACM
-            CF --> S3
-            S3 --> Files
-     </div>
-
-    <h2>Technical Implementation Guide</h2>
-    <p>Follow these steps to reproduce this edge-optimized hosting environment:</p>
-
-    <ul class="tech-step-list">
-      <li>
-        <h3>1. Initialize Origin Storage (S3)</h3>
-        Create an S3 bucket and disable all public access. The bucket will act as the private origin for the distribution.
-        <div class="code-window">
-          <div class="code-header"><span>AWS CLI</span></div>
-          <div class="code-content">
-            aws s3api create-bucket --bucket <span class="hl-val">my-secure-web-bucket</span> --region <span class="hl-val">us-east-1</span>
-          </div>
-        </div>
-      </li>
-
-      <li>
-        <h3>2. Establish Identity (ACM)</h3>
-        Request a public SSL/TLS certificate. <strong>Important:</strong> You must request this in the <code>us-east-1</code> region to ensure CloudFront compatibility.
-      </li>
-
-      <li>
-        <h3>3. Configure CloudFront with OAC</h3>
-        Deploy the distribution. Instead of legacy OAI, use <strong>Origin Access Control (OAC)</strong> for enhanced security and support for encrypted buckets.
-        <div class="code-window">
-          <div class="code-header"><span>Terraform Snippet</span></div>
-          <div class="code-content">
-            <span class="hl-key">resource</span> <span class="hl-val">"aws_cloudfront_distribution"</span> "s3_distribution" {<br>
-            &nbsp;&nbsp;<span class="hl-attr">enabled</span> = <span class="hl-val">true</span><br>
-            &nbsp;&nbsp;<span class="hl-attr">default_root_object</span> = <span class="hl-val">"index.html"</span><br>
-            &nbsp;&nbsp;<span class="hl-attr">origin</span> {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="hl-attr">domain_name</span> = aws_s3_bucket.b.bucket_regional_domain_name<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="hl-attr">origin_access_control_id</span> = aws_cloudfront_origin_access_control.default.id<br>
-            &nbsp;&nbsp;}<br>
-            }
-          </div>
-        </div>
-      </li>
-
-      <li>
-        <h3>4. Update DNS Records (Route 53)</h3>
-        Map your custom domain to the CloudFront distribution using an <strong>Alias A Record</strong>. This allows for apex domain mapping which standard CNAMEs do not support.
-      </li>
-
-      <li>
-        <h3>5. Handshake Permissions</h3>
-        Apply the S3 bucket policy to allow the CloudFront Service Principal to fetch objects. This completes the "Zero Trust" link between your CDN and Storage.
-      </li>
-
-      <li>
-        <h3>6. Cache Management</h3>
-        Execute a manual invalidation after the initial deployment to ensure the global edge nodes are synchronized with your latest build.
-        <div class="code-window">
-          <div class="code-header"><span>AWS CLI</span></div>
-          <div class="code-content">
-            aws cloudfront create-invalidation --distribution-id <span class="hl-val">YOUR_ID</span> --paths <span class="hl-val">"/*"</span>
-          </div>
-        </div>
-      </li>
-    </ul>
-
-    <section class="challenges-section">
-      <h2>Architectural Challenges</h2>
-      <ul>
-        <li><strong>Regional Constraints:</strong> Certificates must reside in <code>us-east-1</code> for global distributions, regardless of where your other resources sit.</li>
-        <li><strong>Consistency vs. Performance:</strong> High TTLs improve cache hit ratios but require explicit invalidation logic during CI/CD cycles.</li>
-        <li><strong>OAC Policy Logic:</strong> The S3 bucket policy must specifically reference the distribution ARN to prevent unauthorized access from other CloudFront users.</li>
-      </ul>
-    </section>
-
-    <section class="engagement" data-engagement data-post="static-website"></section>
-
-  </article>
-
-  <footer>
-    <p>© 2026 Tech Research Blog</p>
-  </footer>
-
+<body data-page="post" data-post="static-website">
+  <div id="app"></div>
+  <noscript><p style="padding:2rem;font-family:sans-serif">This site needs JavaScript enabled.</p></noscript>
 </body>
 </html>

@@ -1,111 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Auth0 to Amazon Cognito Migration</title>
-  <link rel="stylesheet" href="../style.css">
-
-  <!-- Load Mermaid -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth0 to Amazon Cognito Migration — TechResearch</title>
+  <meta name="description" content="Migrating an application's authentication from Auth0 to Amazon Cognito.">
+  <meta property="og:title" content="Auth0 to Amazon Cognito Migration — TechResearch">
+  <meta property="og:description" content="Migrating an application's authentication from Auth0 to Amazon Cognito.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#4c1d95">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <script>
-    mermaid.initialize({ startOnLoad: true });
+    // Apply the saved/system theme before first paint (no flash).
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
   </script>
-  <link rel="stylesheet" href="../assets/engagement.css">
-  <script src="../assets/site-config.js"></script>
-  <script src="../assets/site.js" defer></script>
-  <script src="../assets/engagement.js" defer></script>
+  <script src="/site-config.js"></script>
+  <script type="module" src="/src/pages/post.ts"></script>
 </head>
-
-<body>
-  <header class="nav">
-    <a class="logo" href="../index.html" aria-label="TechResearch home">TechResearch</a>
-    <nav>
-      <a href="../index.html">Home</a>
-    </nav>
-  </header>
-
-  <article class="container">
-    <h1>Auth0 to Amazon Cognito Migration</h1>
-    <p><small>Published: 2026</small></p>
-
-    <p>
-      This project involved migrating an application’s authentication system from 
-      <strong>Auth0</strong> to <strong>Amazon Cognito</strong> to reduce vendor dependency 
-      and better align with AWS-native services.
-    </p>
-
-    <p>
-      The migration covered mapping existing Auth0 user flows (sign-up, sign-in, session handling, 
-      and role-based access control) to Cognito User Pools and Identity Pools. Application code 
-      was updated to support AWS Cognito JWT validation and authentication workflows.
-    </p>
-
-    <p>
-      Key challenges included handling secure user migration, maintaining session continuity, 
-      and ensuring zero downtime during cutover from Auth0 to Cognito.
-    </p>
-
-    <p>
-      After migration, the system benefited from improved AWS integration, reduced third-party 
-      dependency, and centralized identity management within the AWS ecosystem.
-    </p>
-
-    <h2>Architecture Diagram</h2>
-
-    <div class="mermaid">
-        graph TD
-
-        subgraph Client_Tier [Client Tier]
-            FE[TypeScript FE]
-        end
-
-        subgraph Auth_Tier [Identity Tier]
-            CUP[Cognito User Pool]
-            ML[Managed Login UI]
-        end
-
-        subgraph API_Tier [API & Logic Tier]
-            AS[AppSync GraphQL API]
-            L1[Lambda Resolver A]
-            L2[Lambda Resolver B]
-        end
-
-        subgraph Event_Tier [Event-Driven Tier]
-            EB[EventBridge Bus]
-            L3[Async Worker Lambda]
-            SQS[SQS / SNS]
-        end
-
-        %% Auth Flow
-        FE -- "1. Login Redirect" --> ML
-        ML -- "2. Auth Success" --> CUP
-        CUP -- "3. Issue ID Token" --> FE
-
-        %% API Flow
-        FE -- "4. GraphQL Request + ID Token" --> AS
-        AS -. "5. Authorize Token" .-> CUP
-
-        AS -- "6. Invoke" --> L1
-        AS -- "6. Invoke" --> L2
-
-        %% Event Flow
-        L1 -- "7. PutEvents" --> EB
-        L2 -- "7. PutEvents" --> EB
-
-        EB -- "8. Rule Match" --> L3
-        EB -- "8. Rule Match" --> SQS
-
-        %% Dev Flow
-        GH[GitHub Repo] -. "CI/CD" .-> FE
-        GH -. "CI/CD" .-> L1
-    </div>
-
-    <section class="engagement" data-engagement data-post="auth0-to-cognito"></section>
-
-  </article>
-
-  <footer>
-    <p>© 2026 Tech Research Blog</p>
-  </footer>
+<body data-page="post" data-post="auth0-to-cognito">
+  <div id="app"></div>
+  <noscript><p style="padding:2rem;font-family:sans-serif">This site needs JavaScript enabled.</p></noscript>
 </body>
 </html>

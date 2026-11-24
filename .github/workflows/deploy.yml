@@ -27,6 +27,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Type-checks, then bundles the TypeScript site into dist/
+      - name: Build site
+        run: npm run build
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -40,30 +53,68 @@ jobs:
           echo "bucket=$(get site_bucket)" >> "$GITHUB_OUTPUT"
           echo "distribution=$(get cloudfront_distribution_id)" >> "$GITHUB_OUTPUT"
 
-      # Public values written by my-website-infra (engagement-api module):
-      # API address, Turnstile site key, Web Analytics token. Any that are
-      # missing (e.g. before the infra is applied) are left empty and the
-      # site simply hides likes/comments or analytics.
+      # Runtime config, overwriting the empty default from public/site-config.js.
+      # Everything is optional; whatever is missing is hidden on the site.
+      #  - <prefix>/site_config/*  API address, Turnstile key, analytics token
+      #                            (written by my-website-infra)
+      #  - <prefix>/profile/*      name, email, links, certifications (set by hand)
+      #  - private bucket          public/photo.* is copied into the site;
+      #                            private/cv.pdf is only checked for existence,
+      #                            never downloaded (served via the API instead)
+      # See my-website-infra/docs/07-profile-and-private-files.md.
+      # Personal values are deliberately NOT printed to the job log.
       - name: Write site config
+        env:
+          PREFIX: ${{ vars.SITE_PARAMETER_PREFIX }}
         run: |
-          opt() { aws ssm get-parameter --name "${{ vars.SITE_PARAMETER_PREFIX }}/site_config/$1" --query Parameter.Value --output text 2>/dev/null || true; }
-          mkdir -p assets
-          config=$(jq -cn \
-            --arg api "$(opt api_base_url)" \
-            --arg ts  "$(opt turnstile_site_key)" \
-            --arg wa  "$(opt web_analytics_token)" \
-            '{apiBaseUrl: $api, turnstileSiteKey: $ts, webAnalyticsToken: $wa}')
-          echo "window.SITE_CONFIG = ${config};" > assets/site-config.js
-          cat assets/site-config.js
+          opt() { aws ssm get-parameter --name "$PREFIX/$1" --query Parameter.Value --output text 2>/dev/null || true; }
 
+          params=$(aws ssm get-parameters-by-path --path "$PREFIX/profile" --with-decryption \
+                     --query 'Parameters[].{k: Name, v: Value}' --output json 2>/dev/null || true)
+          profile=$(jq -c '
+              map({key: (.k | split("/") | last), value: .v}) | from_entries
+              | if has("certifications") then .certifications |= (try fromjson catch []) else . end
+            ' <<<"${params:-[]}")
+
+          photo=""
+          cv=false
+          bucket=$(opt private_assets_bucket)
+          if [ -n "$bucket" ]; then
+            for ext in jpg jpeg png webp; do
+              if aws s3 cp "s3://$bucket/public/photo.$ext" "dist/profile/photo.$ext" --only-show-errors 2>/dev/null; then
+                photo="/profile/photo.$ext"
+                break
+              fi
+            done
+            if aws s3 ls "s3://$bucket/private/cv.pdf" >/dev/null 2>&1; then cv=true; fi
+          fi
+
+          config=$(jq -cn \
+            --arg api "$(opt site_config/api_base_url)" \
+            --arg ts  "$(opt site_config/turnstile_site_key)" \
+            --arg wa  "$(opt site_config/web_analytics_token)" \
+            --argjson profile "$profile" \
+            --arg photo "$photo" \
+            --argjson cv "$cv" \
+            '{apiBaseUrl: $api, turnstileSiteKey: $ts, webAnalyticsToken: $wa,
+              profile: ($profile + {cvAvailable: $cv} + (if $photo == "" then {} else {photo: $photo} end))}')
+          echo "window.SITE_CONFIG = ${config};" > dist/site-config.js
+
+          # Log which settings are present, not their values.
+          jq -r '"api: \(.apiBaseUrl != ""), turnstile: \(.turnstileSiteKey != ""), analytics: \(.webAnalyticsToken != "")",
+                 "profile fields: \(.profile | keys | join(", "))"' <<<"$config"
+
+      # Fingerprinted bundles (dist/assets/*) never change for a given name,
+      # so browsers may cache them for a year. Everything else (HTML,
+      # site-config.js, favicon) is revalidated on every visit.
       - name: Sync files to S3
         run: |
-          aws s3 sync . "s3://${{ steps.target.outputs.bucket }}" --delete \
-                --exclude ".git/*" \
-                --exclude ".github/*" \
-                --exclude ".gitignore" \
-                --exclude ".claude/*" \
-                --exclude "*.md"
+          bucket="s3://${{ steps.target.outputs.bucket }}"
+          aws s3 sync dist/assets "$bucket/assets" --delete \
+                --cache-control "public, max-age=31536000, immutable"
+          aws s3 sync dist "$bucket" --delete \
+                --exclude "assets/*" \
+                --cache-control "public, max-age=0, must-revalidate"
 
       - name: Invalidate CloudFront cache
         run: |

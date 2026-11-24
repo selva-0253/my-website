@@ -1,67 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Home - TechResearch</title>
-  <link rel="stylesheet" href="style.css">
   <meta charset="UTF-8">
-  <script src="assets/site-config.js"></script>
-  <script src="assets/site.js" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechResearch — Cloud Engineering Notes</title>
+  <meta name="description" content="Exploring systems, software, cloud, and real-world engineering concepts.">
+  <meta property="og:title" content="TechResearch — Cloud Engineering Notes">
+  <meta property="og:description" content="Exploring systems, software, cloud, and real-world engineering concepts.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#4c1d95">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <script>
+    // Apply the saved/system theme before first paint (no flash).
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <script src="/site-config.js"></script>
+  <script type="module" src="/src/pages/home.ts"></script>
 </head>
-<body>
-  <header class="nav">
-    <a class="logo" href="index.html" aria-label="TechResearch home">TechResearch</a>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="posts.html">Posts</a>
-      <a href="about.html">About</a>
-    </nav>
-  </header>
-
-  <!-- Hero Section -->
-  <section class="hero">
-    <h1>Welcome to TechResearch</h1>
-    <p>Exploring systems, software, cloud, and real-world engineering concepts.</p>
-    <img src="images/hero-image.jpg" alt="TechResearch Hero Image" class="hero-image">
-  </section>
-
-  <!-- Featured Articles Section -->
-  <section class="container">
-    <h2>Featured Articles</h2>
-    <div class="grid">
-      <a class="card" href="blog/terraform.html">
-        <h3>Automate Infrastructure with Terraform</h3>
-        <p>Learn how to use Terraform to automate AWS resource provisioning with Infrastructure-as-Code.</p>
-      </a>
-
-      <a class="card" href="blog/static_website.html">
-        <h3>Deploy Static Website on AWS</h3>
-        <p>Step-by-step guide to deploying a static website on AWS using S3, CloudFront, and Route 53.</p>
-      </a>
-    </div>
-  </section>
-
-  <!-- About Preview Section -->
-  <section class="about-preview">
-    <div class="container about-flex">
-      <div class="about-image-wrapper">
-        <img src="images/cloud-hub.jpg" alt="Cloud Systems Architecture" class="profile-img">
-        <div class="experience-badge">Hyderabad, India</div>
-      </div>
-      
-      <div class="about-text">
-        <span class="eyebrow">The Professional Journey</span>
-        <h2>Bridging the gap between Code and Infrastructure</h2>
-        <p>
-          I'm a Hyderabad-based Cloud Engineer with a foundation in electronics engineering. 
-          I specialize in building automated, scalable systems across **AWS, GCP, and Azure**, 
-          ensuring that infrastructure evolves at the speed of code.
-        </p>
-        <div class="mini-tags">
-          <span>Cloud Native</span>
-          <span>Infrastructure-as-Code</span>
-          <span>Automation</span>
-        </div>
-        <a href="about.html" class="button">Read My Story</a>
-      </div>
-    </div>
-  </section>
+<body data-page="home">
+  <div id="app"></div>
+  <noscript><p style="padding:2rem;font-family:sans-serif">This site needs JavaScript enabled.</p></noscript>
+</body>
+</html>
